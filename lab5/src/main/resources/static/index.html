@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My CRUD application</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Workers Table</h2>
+
+<table id="workersList">
+
+</table>
+
+<form action="#">
+    <input id="worker_name" placeholder="Worker name">
+    <input id="worker_login" placeholder="Worker login">
+    <input id="worker_email" placeholder="Worker email">
+    <button onclick="createWorker()">Create worker</button>
+</form>
+
+<input id="search_field">
+<button onclick="searchByLogin()">Search by Login</button>
+
+<input id="search_field2">
+<button onclick="searchByName()">Search by Name</button>
+
+<script>
+    function searchByLogin() {
+        var login = document.getElementById("search_field").value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var worker = JSON.parse(this.responseText);
+                var html = '<tr>\n' +
+                    '        <th>Worker id</th>\n' +
+                    '        <th>Worker name</th>\n' +
+                    '        <th>Worker login</th>\n' +
+                    '        <th>Worker email</th>\n' +
+                    '        <th>Delete</th>\n' +
+                    '    </tr>';
+                html = html + '<tr><td>' + worker.id + '</td>\n' +
+                    '        <td>' + worker.name + '</td>\n' +
+                    '        <td>' + worker.login + '</td>\n' +
+                    '        <td>' + worker.email + '</td>' +
+                    '        <td><button onclick="deleteWorker(' + worker.id + ')">Delete</button></td></tr>';
+                document.getElementById("workersList").innerHTML = html;
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/workers/findByLogin?login=" + login, true);
+        xhttp.send();
+    }
+
+    function searchByName() {
+        var name = document.getElementById("search_field2").value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var worker = JSON.parse(this.responseText);
+                var html = '<tr>\n' +
+                    '        <th>Worker id</th>\n' +
+                    '        <th>Worker name</th>\n' +
+                    '        <th>Worker login</th>\n' +
+                    '        <th>Worker email</th>\n' +
+                    '        <th>Delete</th>\n' +
+                    '    </tr>';
+                html = html + '<tr><td>' + worker.id + '</td>\n' +
+                    '        <td>' + worker.name + '</td>\n' +
+                    '        <td>' + worker.login + '</td>\n' +
+                    '        <td>' + worker.email + '</td>' +
+                    '        <td><button onclick="deleteWorker(' + worker.id + ')">Delete</button></td></tr>';
+                document.getElementById("workersList").innerHTML = html;
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/workers/findByName?name=" + name, true);
+        xhttp.send();
+    }
+
+
+    function deleteWorker(workerId) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("DELETE", "http://localhost:8080/workers/delete/" + workerId, true);
+        xhttp.send();
+    }
+
+    function createWorker() {
+        var workerName = document.getElementById("worker_name").value;
+        var workerLogin = document.getElementById("worker_login").value;
+        var workerEmail = document.getElementById("worker_email").value;
+
+        var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
+        xmlhttp.open("POST", "http://localhost:8080/workers/save");
+        xmlhttp.setRequestHeader("Content-Type", "application/json");
+        xmlhttp.send(JSON.stringify({name: workerName, login: workerLogin, email: workerEmail}));
+
+        loadWorkers();
+    }
+
+    function loadWorkers() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var workers = JSON.parse(this.responseText);
+                var html = '<tr>\n' +
+                    '        <th>Worker id</th>\n' +
+                    '        <th>Worker name</th>\n' +
+                    '        <th>Worker login</th>\n' +
+                    '        <th>Worker email</th>\n' +
+                    '        <th>Delete</th>\n' +
+                    '    </tr>';
+                for (var i = 0; i < workers.length; i++) {
+                    var worker = workers[i];
+                    console.log(worker);
+                    html = html + '<tr><td>' + worker.id + '</td>\n' +
+                        '        <td>' + worker.name + '</td>\n' +
+                        '        <td>' + worker.login + '</td>\n' +
+                        '        <td>' + worker.email + '</td>' +
+                        '        <td><button onclick="deleteWorker(' + worker.id + ')">Delete</button></td></tr>';
+
+                }
+                document.getElementById("workersList").innerHTML = html;
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/workers/findAll", true);
+        xhttp.send();
+    }
+
+    loadWorkers();
+</script>
+
+<h2>Salary Table</h2>
+
+<table id="salariesList">
+
+</table>
+
+<form action="#">
+    <input id="worker_position" placeholder="Worker position">
+    <input id="worker_payroll" placeholder="Worker payroll">
+    <button onclick="createSalary()">Create salary</button>
+</form>
+
+<script>
+
+
+    function deleteSalaries(worker_id) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("DELETE", "http://localhost:8080/salaries/delete/" + worker_id, true);
+        xhttp.send();
+    }
+
+    function createSalary() {
+        var workerPosition = document.getElementById("worker_position").value;
+        var workerPayroll = document.getElementById("worker_payroll").value;
+
+        var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
+        xmlhttp.open("POST", "http://localhost:8080/salaries/save");
+        xmlhttp.setRequestHeader("Content-Type", "application/json");
+        xmlhttp.send(JSON.stringify({position: workerPosition, payroll: workerPayroll}));
+
+        loadSalaries();
+    }
+
+    function loadSalaries() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var salaries = JSON.parse(this.responseText);
+                var html = '<tr>\n' +
+                    '        <th>Worker id</th>\n' +
+                    '        <th>Worker position</th>\n' +
+                    '        <th>Worker payroll in $</th>\n' +
+                    '        <th>Delete</th>\n' +
+                    '    </tr>';
+                for (var i = 0; i < salaries.length; i++) {
+                    var salary = salaries[i];
+                    console.log(salary);
+                    html = html + '<tr><td>' + salary.worker_id + '</td>\n' +
+                        '        <td>' + salary.position + '</td>\n' +
+                        '        <td>' + salary.payroll + '</td>\n' +
+                        '        <td><button onclick="deleteSalaries(' + salary.worker_id + ')">Delete</button></td></tr>';
+
+                }
+                document.getElementById("salariesList").innerHTML = html;
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/salaries/findAll", true);
+        xhttp.send();
+    }
+
+    loadSalaries();
+</script>
+
+
+</body>
+</html>
